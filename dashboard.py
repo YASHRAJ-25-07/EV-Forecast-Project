@@ -2,12 +2,17 @@ import dash
 from dash import dcc, html, Input, Output
 import plotly.express as px
 import pandas as pd
+import numpy as np
+from sklearn.linear_model import LinearRegression
 
 # Load datasets
 df_india = pd.read_csv('data/ev_market_data_500.csv')
 df_global = pd.read_csv('data/global_ev_market_data_500.csv')
 
 app = dash.Dash(__name__)
+
+# IMPORTANT: This line is required for Render.com
+server = app.server
 
 app.layout = html.Div([
     html.H1("Global & India EV Market Analysis", style={'textAlign': 'center', 'color': '#2c3e50'}),
@@ -21,7 +26,7 @@ app.layout = html.Div([
     # 2. Filters
     html.Div([
         html.Div([
-            html.Label("Select Category (e.g., 2W - Bike/Scooter, 4W - Car):"),
+            html.Label("Select Category:"),
             dcc.Dropdown(id='category-dropdown')
         ], style={'width': '45%', 'display': 'inline-block', 'padding': '10px'}),
         
@@ -57,7 +62,7 @@ def update_filters(market):
 def update_dashboard(market, category, model):
     df = df_india if market == 'india' else df_global
     
-    # Default filter if nothing selected
+    # Default filter logic
     if not category: category = df['Category'].unique()[0]
     if not model: model = df[df['Category'] == category]['Model'].unique()[0]
     
